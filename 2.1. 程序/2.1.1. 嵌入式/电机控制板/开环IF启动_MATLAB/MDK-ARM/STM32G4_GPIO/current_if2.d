@@ -1,0 +1,13 @@
+stm32g4_gpio\current_if2.o: ..\MATLAB\Current_IF2.c
+stm32g4_gpio\current_if2.o: ..\MATLAB\Current_IF2.h
+stm32g4_gpio\current_if2.o: ..\MATLAB\rtwtypes.h
+stm32g4_gpio\current_if2.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
+stm32g4_gpio\current_if2.o: ..\MATLAB\mw_cmsis.h
+stm32g4_gpio\current_if2.o: ../Middlewares/ST/ARM/DSP/Inc/arm_math.h
+stm32g4_gpio\current_if2.o: ../Drivers/CMSIS/Include/core_cm4.h
+stm32g4_gpio\current_if2.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+stm32g4_gpio\current_if2.o: ../Drivers/CMSIS/Include/cmsis_version.h
+stm32g4_gpio\current_if2.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+stm32g4_gpio\current_if2.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+stm32g4_gpio\current_if2.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+stm32g4_gpio\current_if2.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\float.h
