@@ -1,17 +1,15 @@
-Common references: [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md)、[欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season)
-
 # Motor Control Board
 ## Speed Control
-The source code for this section is located at`2.1. 程序\2.1.1. 嵌入式\Motor Control Board\PWM_LibFOC_Speed Control`，The LibFOC motor control library used here is based on  [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md)  and  [DengFOC_on_STM32](https://github.com/haotianh9/DengFOC_on_STM32) written, and the project framework is mainly built with CubeMX (HAL library). The project file is `2.1. 程序\2.1.1. 嵌入式\Motor Control Board\PWM_LibFOC_Speed Control\MDK-ARM`的`STM32G4_GPIO.uvprojx`文件。
+The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制`. The LibFOC motor control library used is based on [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md) and [DengFOC_on_STM32](https://github.com/haotianh9/DengFOC_on_STM32). The program framework is mainly built using CubeMX (HAL library), and the project file is `STM32G4_GPIO.uvprojx` in `2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制\MDK-ARM`.
 
-Before updating the project with CubeMX, make sure any user-written code is placed between /* USER CODE BEGIN xx */与/* USER CODE END xx */结构之间，否则会被删除。
+Before updating the project using CubeMX, ensure that the code written by the user is placed between the /* USER CODE BEGIN xx */ and /* USER CODE END xx */ structures; otherwise, it will be deleted.
 
-This part of the program uses an FOC control architecture, with the current control strategy of 'zero direct-axis current', PID control algorithm, and Sine Pulse Width Modulation (SPWM) for PWM control.Position control code is similar to speed control and can be referenced directly from this section.
+The control architecture of this part of the program is FOC, the current control strategy is "direct-axis current zero", the control algorithm is PID, and the PWM control technology is "sinusoidal pulse width modulation". The code related to position control is similar to speed control and can directly refer to the content of this section.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/webp/33745167/1742302430811-43780d8d-265c-4535-8e01-2173e5e24d32.webp" alt="Classification of common concepts in the motor control field" />
+<img src="https://cdn.nlark.com/yuque/0/2025/webp/33745167/1742302430811-43780d8d-265c-4535-8e01-2173e5e24d32.webp" alt="Classification of common concepts in the field of motor control">
 
-### MCU Configuration
-Starting from line 143 of `main.c` (the `main()` function), the MCU is first configured. This part can be studied with  [欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season)  for further study. The related source code is as follows.
+### Microcontroller Configuration
+Starting from the main function `main()` at line 143 of the `main.c` file, the microcontroller is first configured. This part can be learned with reference to [欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season). The relevant source code is as follows.
 
 ```cpp
 /* 单片机配置 --------------------------------------------------------*/
@@ -86,37 +84,37 @@ HAL_COMP_Start(&hcomp1);
 ```
 
 #### ADC and DAC
-ADC related configuration can be found in `main.c`文件第 156 行到 157 行，`MX_ADC1_Init()`和 `MX_ADC2_Init()`。In this program, ADC1 regular group channel 11 is used to sample the bus voltage. Its single-ended sampling range is [0, 3.3 V], sampling time is 2.5 clock cycles, clock prescaler is /4, resolution is 12 bits, data is right-aligned, and sampling is triggered by software.On the designed control board, the bus voltage of the frameless torque motor is divided by a resistor divider of 75 kΩ and 3 kΩ, and the 3 kΩ resistor sends the divided voltage to the microcontroller ADC input. Therefore, the conversion relation between actual bus voltage and ADC sample value is:
+The ADC-related configuration files can be found in lines 156 to 157 of the `main.c` file, `MX_ADC1_Init()` and `MX_ADC2_Init()`. In this program, ADC1 regular group channel 11 is used to collect the bus voltage, with a single-ended sampling range of [0, 3.3 V], a sampling period of 2.5 clock cycles, a clock division of 4, a sampling resolution of 12 bits, right-aligned data, and sampling triggered by software. In the designed control board, the bus voltage of the frameless torque motor is divided by resistors with values of 75 kΩ and 3 kΩ, and the voltage from the 3 kΩ resistor is input to the ADC interface of the microcontroller. Therefore, the conversion relationship between the actual bus voltage and the ADC sampling value is:
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289033349-8646c99e-4007-47fb-a5ad-1e380877cab4.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289033349-8646c99e-4007-47fb-a5ad-1e380877cab4.png" alt="Conversion formula of bus voltage and ADC sampling value">
 
-ADC1 injected group channels 3 and 12, and ADC2 injected group channel 3, are used to sample the three-phase currents.Since the selected motor allows a maximum current of 61 A, the control board uses a shunt resistor with nominal value 1 mΩ and maximum operating current 77 A for low-side sampling of the phase voltages.The sampled phase voltages are biased and amplified by the microcontroller's internal operational amplifiers (OPAMPs) and then fed into the ADC input.The OPAMP gain is configured by external resistors; in this circuit the gain is set to 22/3.The ADC input is cascaded with the OPAMP output. The amplified sampling signal is converted by the ADC injected group, which has higher priority than the regular group. The single-ended sampling range is [0, 3.3 V], sampling time is 2.5 clock cycles, and the sampling trigger comes from the advanced timer TIM1.To ensure the ADC input voltage stays within the single-ended range, the control board adds a resistive divider to bias the ADC input by +1.65 V at the OPAMP output.After biasing and considering the OPAMP gain of 22/3 and the 1 mΩ shunt resistor, the relationship between ADC input voltage, ADC sample value, and phase current is:
+ADC1 injected group channels 3 and 12, and ADC2 injected group channel 3 are used to collect three-phase currents. Since the maximum current allowed by the motor selected for this joint is 61 A, the control board uses a sampling resistor with a nominal resistance of 1 mΩ and a maximum operating current of 77 A to sample the phase voltage of the motor winding at the low end. The sampled phase voltage is biased and amplified by the internal operational amplifier (OPAMP) of the microcontroller, and finally input to the ADC interface. The gain of the microcontroller's OPAMP is configured through external resistors, and the gain value of this circuit is configured to 22/3. The ADC interface of the microcontroller is cascaded with the output end of the OPAMP, and the sampled signal amplified by the OPAMP is converted by the injected group of the ADC. The priority of the injected group is higher than that of the regular group, with a single-ended sampling range of [0, 3.3 V], a sampling period of 2.5 clock cycles, and the sampling trigger signal comes from the advanced timer TIM1. To ensure that the input voltage of the ADC is within the single-ended sampling voltage range, the control board uses a voltage divider resistor outside the OPAMP interface of the microcontroller to positively bias the ADC input voltage by 1.65 V. After biasing, considering the 22/3 OPAMP gain and the voltage division of the 1 mΩ low-end sampling resistor, the relationship between the ADC port input voltage, the ADC sampling value, and the phase current can be obtained as:
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289223431-c9d8b2ac-5ed2-4201-8a40-5c32713ef959.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289223431-c9d8b2ac-5ed2-4201-8a40-5c32713ef959.png" alt="Conversion formula of phase current, ADC input voltage and ADC sampling value">
 
-In `main.c` lines 210–213, a DAC comparison threshold is configured to prevent phase current overcurrent. If the ADC current sample exceeds the `Data` passed to `HAL_DAC_SetValue`, the advanced timer PWM output will stop.
+In lines 210 to 213 of the `main.c` file, we set the DAC comparison and wave blocking to prevent phase current overcurrent. If the ADC current sampling value exceeds the input `Data` of the `HAL_DAC_SetValue` function, the advanced timer PWM wave transmission will stop.
 
 #### Advanced Timer
-In the MCU peripherals, the advanced counter TIM1 is used to generate PWM and control the execution cycle of the control program.For TIM1 configuration, the prescaler `PSC` is set to divide by 1, and the repetition counter register `RCR` is 1, so only one update event is triggered per period.
+Among the peripherals of the microcontroller, the advanced counter TIM1 functions to generate PWM waves and control the execution cycle of the program. For the configuration of TIM1, its prescaler `PSC` is 1 division, and the value of the repetition counter register `RCR` is 1, that is, only one update event is triggered in one cycle.
 
-TIM1 channels 1 to 3 operate in complementary PWM output mode, PWM mode 1, and the counting mode is[中心对齐模式](https://www.zhihu.com/question/419152940)。TIM1 的相关配置程序位于 `main.c`文件第 161 行函数 `MX_TIM1_Init()`中。
+Channels 1 to 3 of TIM1 work in complementary PWM output mode, PWM mode 1, and counting mode is [center-aligned mode](https://www.zhihu.com/question/419152940). The relevant configuration program of TIM1 is located in the function `MX_TIM1_Init()` at line 161 of the `main.c` file.
 
-To prevent both top and bottom half-bridges conducting simultaneously, TIM1 dead time is set to 1.5 microseconds, corresponding to a `DTG` register value of 0x78.
+To prevent simultaneous conduction of the upper and lower bridge arms of the full-bridge module, the dead time of TIM1 is set to 1.5 microseconds, and the corresponding value of the `DTG` register is 0x78.
 
 $ \begin{align}
 \text{DT}&=\text{DTG}[7:0]*t_{dtg}\\
-&=120*\frac{1}{160\text{M}}*2(备注：\text{CKD}分频系数）\\
+&=120*\frac{1}{160\text{M}}*2(\text{Note: CKD frequency division coefficient）}\\
 &=1500ns\\
 \end{align} $
 
-From `main.c` line 195, the auto-reload register `ARR` is set to 7999. Therefore the TIM1 PWM frequency $f_{\text{PWM}}$ is:
+It can be known from line 195 of the `main.c` file that the value of the auto-reload register `ARR` is 7999. Thus, the frequency $ f_{\text{PWM}} $ of the PWM wave generated by TIM1 is:
 
-$ f_{\text{PWM}} =160\text{MHz}/(7999+1)/2=10\text{kHz} $。The division by 2 is due to center-aligned counting mode.
+$ f_{\text{PWM}} =160\text{MHz}/(7999+1)/2=10\text{kHz} $. Among them, the frequency is divided by 2 due to the center-aligned mode.
 
-TIM1 channel 4 configured without output is mainly used to generate a TRGO signal to trigger ADC three-phase current sampling; its PWM mode is 2.To ensure stable sampling, all lower bridge legs of the three-phase full-bridge inverter must be turned on at the sampling trigger instant. Therefore, in center-aligned mode, `CCR4` should be set close to the overflow value 7999. Considering ADC sampling and conversion delay, it is set to 7998 in `main.c` line 196.
+TIM1 channel 4, configured in no-output mode, is mainly used to generate TRGO signals to trigger three-phase current sampling of the ADC peripheral, and its PWM mode is 2. To ensure the stability of the sampling value, the lower bridge arms of the three-phase full-bridge inverter circuit must all be turned on at the sampling trigger moment. For this reason, in the center-aligned mode, the value of the register `CCR4` should be close to the overflow value 7999. Due to the delay in ADC sampling and conversion, its value is set to 7998 in line 196 of the `main.c` file.
 
 ### while Loop
-Between lines 215 and 223 of `main.c`, the while loop functions are simple and only used for ADC software trigger and [Bus voltage sampling](https://zhuanlan.zhihu.com/p/495852697)。Refer to the 'ADC and DAC' section of this document for the ADC conversion formula.
+The functions in the while loop between lines 215 and 223 of the `main.c` file are relatively simple, and are only used for ADC software triggering and [bus voltage sampling](https://zhuanlan.zhihu.com/p/495852697). The ADC conversion formula refers to the `ADC and DAC` part of this document.
 
 ```cpp
 while (1)
@@ -130,7 +128,7 @@ while (1)
 }
 ```
 
-### ADC interrupt callback function
+### ADC Interrupt Callback Function
 ```cpp
 /*** ADC中断回调函数 ***/
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
@@ -193,10 +191,10 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 }
 ```
 
-When TIM1 counter `CNT` increments to the `CCR4` compare value, the ADC interrupt callback is triggered. At that time the ADC injected group has completed current sampling and executes routines directly related to motor control.
+When the `CNT` register of the TIM1 advanced counter increments to the `CCR4` comparison value, the ADC interrupt callback function will be triggered. At this time, the ADC injected group completes current sampling and executes programs directly related to motor control.
 
-#### Program execution cycle control
-该部分程序常见以下结构：
+#### Program Execution Cycle Control
+This part of the program commonly has the following structure:
 
 ```cpp
 count++;
@@ -208,15 +206,16 @@ if (count >= steps)
 }
 ```
 
-这是为了控制相关程序的执行周期。比如，设 `steps = 100`，那么，ADC interrupt callback function每执行 100 次，才会运行一次该 if 结构中的程序。该结构多用于调整多级控制（如位置环+电流环）不同回路的运行频率（[链接 1](https://www.zhihu.com/question/383770864/answer/3454138454)，[链接 2](https://www.cnblogs.com/zhongzhe/archive/2012/11/14/2770781.html)），或限制通过串口向上位机发送数据的频率（这一过程耗时较长，影响算法执行效率）。VOFA 上位机串口协议教程参考 [链接](https://www.bilibili.com/video/BV1nH4y1X72k?spm_id_from=333.788.videopod.sections&vd_source=ad856f51618186902c24682a8c8279ff)。
+This is to control the execution cycle of related programs. For example, if `steps = 100`, the program in the if structure will run once every 100 executions of the ADC interrupt callback function. This structure is mostly used to adjust the operating frequency of different loops in multi-level control (such as position loop + current loop) ([Link 1](https://www.zhihu.com/question/383770864/answer/3454138454), [Link 2](https://www.cnblogs.com/zhongzhe/archive/2012/11/14/2770781.html)), or to limit the frequency of sending data to the upper computer through the serial port (this process is time-consuming and affects the execution efficiency of the algorithm). For the VOFA upper computer serial port protocol tutorial, please refer to [Link](https://www.bilibili.com/video/BV1nH4y1X72k?spm_id_from=333.788.videopod.sections&vd_source=ad856f51618186902c24682a8c8279ff).
 
-#### Low-pass filtering
-在电机控制中，传感器测量到的速度数据往往存在较大的波动（对位置数据微分进而求解速度导致）。为保证电机平稳运转，往往需要对速度数据进行[Low-pass filtering](https://www.zhihu.com/question/518024588/answer/3364056229)。离散空间中的Low-pass filtering可视为将当前时刻采集的数据与上一时刻采集的数据进行加权求和，使数据平滑。
+#### Low-Pass Filtering
+In motor control, the speed data measured by sensors often has large fluctuations (caused by differentiating position data to solve speed). To ensure the stable operation of the motor, it is often necessary to perform [low-pass filtering](https://www.zhihu.com/question/518024588/answer/3364056229) on the speed data. Low-pass filtering in discrete space can be regarded as weighted summation of the data collected at the current moment and the data collected at the previous moment to smooth the data.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893237-142a47e9-c4ad-4f06-9b17-b14deebce00f.png" alt="Speed data before low-pass filtering" /><img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893193-813a6be1-2f27-480c-8acc-be5374d5afd4.png" alt="Speed data after low-pass filtering" />
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893237-142a47e9-c4ad-4f06-9b17-b14deebce00f.png" alt="Speed data before low-pass filtering">
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893193-813a6be1-2f27-480c-8acc-be5374d5afd4.png" alt="Speed data after low-pass filtering">
 
-#### Inverse transformation
-`setPhaseVoltage`函数 Convert q-axis voltage to three-phase voltages，其程序为：
+#### Inverse Transformation
+The `setPhaseVoltage` function converts the q-axis voltage into three-phase voltages, and its program is:
 
 ```cpp
 void setPhaseVoltage(float Uq,float Ud, float angle_el, TIM_TypeDef * TIM_BASE) {
@@ -242,22 +241,21 @@ void setPhaseVoltage(float Uq,float Ud, float angle_el, TIM_TypeDef * TIM_BASE) 
 }
 ```
 
-In this section, Uq is constrained to ±(bus voltage / 2), and during Clarke inverse transform phase voltages are shifted up by bus voltage/2 due to PWM modulation characteristics. For details refer to [链接](https://zhuanlan.zhihu.com/p/99976227)。
-
+In this part of the program, we limit the size of the Uq output by the controller to the range of `±bus voltage/2`, and shift the phase voltage upward by `bus voltage/2` overall in the inverse Clarke transformation, which is determined by the characteristics of PWM modulation. For a detailed explanation, please refer to [Link](https://zhuanlan.zhihu.com/p/99976227).
 
 
 ## Current Control
-The source code for this section is located at`2.1. 程序\2.1.1. 嵌入式\Motor Control Board\SVPWM_MATLAB_电流环`，The MATLAB motor control library used here is based on  `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.2. Simulink仿真及程序生成\IF` 中的 svpwm 子系统，which is generated by Embedded Coder (see tutorials at 《STM32G4 Simulink FOC开发套件用户手册》第十三章， and 相对应的[视频](https://www.bilibili.com/video/BV12C4y1f78j/?spm_id_from=333.1387.collection.video_card.click&vd_source=ad856f51618186902c24682a8c8279ff)），The project framework is mainly built using CubeMX (HAL library). Project file: `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\Motor Control Board\SVPWM_MATLAB_电流环\MDK-ARM`的`STM32G4_GPIO.uvprojx`文件。
+The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环`. The MATLAB motor control library used is based on the svpwm subsystem in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.2. Simulink仿真及程序生成\IF`, and is generated using Embedded Coder (relevant tutorials can refer to Chapter 13 of the *STM32G4 Simulink FOC Development Kit User Manual* and the corresponding [video](https://www.bilibili.com/video/BV12C4y1f78j/?spm_id_from=333.1387.collection.video_card.click&vd_source=ad856f51618186902c24682a8c8279ff)). The program framework is mainly built using CubeMX (HAL library), and the project file is `STM32G4_GPIO.uvprojx` in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环\MDK-ARM`.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742361984092-4a7872d5-4eb9-4c5f-b7d4-07fe5801d450.png" alt="SVPWM subsystem" />
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742361984092-4a7872d5-4eb9-4c5f-b7d4-07fe5801d450.png" alt="svpwm subsystem">
 
-This part uses FOC architecture, with the current control strategy of zero direct-axis current, PID control algorithm, and Space Vector PWM (SVPWM) technique.
+The control architecture of this part of the program is FOC, the current control strategy is "direct-axis current zero", the control algorithm is PID, and the PWM control technology is "Space Vector Pulse Width Modulation (SVPWM)".
 
-### ADC interrupt callback function
-The main difference between the current control program and the LibFOC speed control program is sampling the three-phase currents inside the ADC interrupt callback.
+### ADC Interrupt Callback Function
+The main difference between the current control program and the speed control program using LibFOC is that in the ADC interrupt callback function, the three-phase current of the motor is collected.
 
-#### Current sampling offset calculation
-First, to compensate ADC offset, current sampling bias values are calculated before the main control routine runs.
+#### Current Sampling Offset Calculation
+First, to compensate for the zero drift of the ADC, the current sampling offset is calculated before the main control program is executed.
 
 ```cpp
 /* 电流采样偏置值（零漂）计算 */
@@ -280,9 +278,9 @@ if (ADC_offset == 0)
 }
 ```
 
-The above offset calculation runs only once. Then phase currents are computed from ADC samples minus offsets and used as feedback for the current control algorithm.
+The calculation of the offset is performed only once. Next, based on the ADC sampling value and the offset, the phase current is calculated and used as the feedback signal in the current control process, input to the control algorithm.
 
-#### Notes on current control
+#### Current Control Notes
 ```cpp
 else
 {
@@ -364,41 +362,41 @@ else
 
 ```
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742364165223-214e3aa5-4096-4c45-a1d8-e24986f16801.png" alt="Global macro definitions" />
+<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742364165223-214e3aa5-4096-4c45-a1d8-e24986f16801.png" alt="Global macro definition">
 
-After converting Simulink subsystems to embedded code with Embedded Coder, subsystem inputs are defined in `rtU` and outputs in `rtY`. The main program calls `xxx_step()` to execute.
+After converting the Simulink subsystem into executable embedded programs using Embedded Coder, the inputs of the subsystem are defined in the `rtU` structure, the outputs are defined in the `rtY` structure, and the main program is executed through the `xxx_step()` function.
 
 :::danger
-Note: if using the custom motor control board v2.1 instead of Euler Electronics board, besides configuring GPIO and peripherals, change the global macro `STM32G431xx` to `STM32G474xx` in Keil, and change the conversion gain from ADC delta to phase current to 0.10986328125f.
+It should be noted that if using the self-developed motor control board v2.1 instead of the motor control board provided by Euler Electronics, in addition to configuring GPIO and peripherals, it is necessary to replace `STM32G431xx` with `STM32G474xx` in the global macro definition of Keil, and at the same time, modify the conversion gain from the difference between the ADC sampling value and the offset to the phase current to 0.10986328125f.
 
-嵌入式程序中，在[浮点数后加 f](http://www.openedv.com/thread-40175-1-1.html) 可提升计算效率。
+In embedded programs, adding `f` after floating-point numbers [can improve calculation efficiency](http://www.openedv.com/thread-40175-1-1.html).
 
 :::
 
-# Resolver Decoder Board
-The source code for this section is located at`2.1. 程序\2.1.1. 嵌入式\Resolver Decoder Board`，The project framework is based on the ATK template (HAL library). Project file: `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\Resolver Decoder Board\Board_2.2_CAN_tune\Projects\MDK-ARM`的`atk_g474.uvprojx`文件。
+# Resolver Decoding Board
+The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\旋变解码板`. The program framework is mainly built based on the engineering template of 正点原子 (Zhengdian Atom) (HAL library), and the project file is `atk_g474.uvprojx` in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\旋变解码板\Board_2.2_CAN_tune\Projects\MDK-ARM`.
 
-The resolver decoder board is mainly based on  [AD2S1210](https://www.analog.com/cn/products/ad2s1210.html) 芯片，which converts the resolver's analog voltage output to digital position and speed signals. Communication is implemented with a bit-banged SPI over GPIO, and data is sent to the motor control board over CAN.
+The resolver decoding board is mainly based on the [AD2S1210](https://www.analog.com/cn/products/ad2s1210.html) chip, which converts the analog voltage signal output by the resolver into digital position and speed signals. These signals are read through a software-simulated SPI bus (directly simulating the high and low level timing of the SPI protocol through GPIO ports) and then sent to the motor control board via the CAN bus.
 
-## AD2S1210 Driver
-This part implements STM32 <-> AD2S1210 communication using software SPI. See  [链接](https://www.analog.com/cn/products/ad2s1210.html#software-resources) 中的软件资源->AD2S1210 参考代码部分。
+## AD2S1210 Driver Program
+This part of the program mainly realizes reading and writing between STM32 and AD2S1210 based on software SPI, and can refer to the Software Resources -> AD2S1210 Reference Code section in [Link](https://www.analog.com/cn/products/ad2s1210.html#software-resources).
 
-### Common functions
+### Common Functions
 :::danger
-Pay special attention to the actual delay time of the `delay` function in the driver. On one hand it influences driver timing; on the other it affects program execution efficiency.
+Special attention should be paid to the actual delay time of the delay function `delay` in the driver program. On the one hand, it will affect the timing of the driver; on the other hand, it will affect the execution efficiency of the program.
 
 :::
 
-#### Initialization function
-On power-up, the AD2S1210 requires specific pin timing:
+#### Initialization Function
+When powering on, the AD2S1210 has certain timing requirements for each pin:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements">
 
-Here, $\text{t}_\text{RST}$ must be at least 10 microseconds, and $\text{t}_\text{TRACK}$ depends on resolution:
+Among them, $ \text{t}_\text{RST} $ is at least $ 10\mu $ seconds, and the length of $ \text{t}_\text{TRACK} $ is related to the resolution:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution">
 
-Accordingly, we implemented the following AD2S1210 initialization function:
+Based on this, we wrote the initialization function of AD2S1210:
 
 ```cpp
 void AD2S1210Initiate()
@@ -415,8 +413,8 @@ void AD2S1210Initiate()
 }
 ```
 
-#### Mode selection function
-Pulling A0 and A1 low or high selects the AD2S1210 operating mode; the following function implements that:
+#### Working Mode Selection Function
+Pulling down or pulling up the two pins `A0` and `A1` can select the working mode of AD2S1210. We wrote the corresponding function to realize this function:
 
 ```cpp
 void AD2S1210SelectMode(unsigned char mode)
@@ -442,8 +440,8 @@ void AD2S1210SelectMode(unsigned char mode)
 }
 ```
 
-#### Write function
-Writing to AD2S1210 internal registers is done in configuration mode. First send an 8-bit register address via SPI, then 8-bit data. This project uses a software SPI write. After sending data, pulse `WR#` high-to-low to latch data.
+#### Write Function
+Writing data to the internal registers of AD2S1210 is done in configuration mode. First, it is necessary to send an 8-bit register address to the SPI interface, and then send 8-bit data. This project directly uses the software SPI write function. After sending data once, it is necessary to pull up the `WR#` pin and use the rising edge to latch the data.
 
 ```cpp
 void WriteToAD2S1210(unsigned char address, unsigned char data)
@@ -496,12 +494,12 @@ void WriteToAD2S1210(unsigned char address, unsigned char data)
 }
 ```
 
-The corresponding signal timing is shown below:
+The corresponding signal timing is as follows:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513847865-b88101a4-3073-42c1-abbe-9eb9b28bea7f.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513847865-b88101a4-3073-42c1-abbe-9eb9b28bea7f.png" alt="Write function signal timing">
 
-#### Read function
-Both normal and configuration modes allow reading position or velocity registers; other registers can only be read in configuration mode. In config mode, write the target register address to SPI. Before reading position or velocity registers, toggle `SAMPLE#` high then low to update the data.
+#### Read Function
+Both position registers and speed registers of AD2S1210 can be read in normal mode or configuration mode, while reading other registers can only be done in configuration mode. To read data in configuration mode, we need to send the address of the target register to the SPI interface. Before reading data in the position register or speed register, it is necessary to first pull up and then pull down the `SAMPLE#` pin to update the data.
 
 ```cpp
 void ReadFromAD2S1210(unsigned char mode, unsigned char address, unsigned char * buf)
@@ -594,34 +592,34 @@ void ReadFromAD2S1210(unsigned char mode, unsigned char address, unsigned char *
 
 Signal timing for reading data in configuration mode:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513904592-947b64f0-4943-41fe-b162-1eb0af381ca2.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513904592-947b64f0-4943-41fe-b162-1eb0af381ca2.png" alt="Signal timing for reading data in configuration mode">
 
 Signal timing for reading data in normal mode:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="Signal timing for reading data in normal mode">
 
-### Velocity two's-complement conversion
-The velocity measured by the AD2S1210 is stored as a 16-bit two's complement value in velocity registers 0x82 and 0x83.According to the AD2S1210 convention for reading position and velocity in normal mode, `ReadFromAD2S1210(VELOCITY, POS_VEL, buf)` returns a 4-byte `unsigned char buf[4]` containing a 24-bit shift register value. Bytes `buf[2]` and `buf[1]` (MSB first, with MSB in `buf[2]`) hold the 16-bit two's complement velocity, and `buf[0]` contains the fault register. The bit meanings of the fault register are shown below:
+### Speed Two's Complement Conversion
+The speed value solved by the resolver decoder AD2S1210 is stored in speed registers 0x82 and 0x83 in the form of a 16-bit binary two's complement. According to the agreement for reading position and speed in AD2S1210's normal mode, the `unsigned char buf[4]` returned by the function `ReadFromAD2S1210(VELOCITY, POS_VEL, buf)` contains a 24-bit wide shift register value. Among them, `buf[2]` to `buf[1]` contain the 16-bit binary two's complement representing speed in MSB-first order (MSB is in `buf[2]`), and `buf[0]` contains data from the fault register. The meaning of each bit of the fault register is shown in the following table:
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="Fault register bit meanings">
 
-In this case the AD2S1210 resolution is set to 12 bits. Thus within the 16-bit velocity value formed by `buf[2]` and `buf[1]`, only bits 15..4 are valid; bits 3..0 should be ignored. To obtain a 12-bit value, shift `buf[2]` left by 8 and OR with `buf[1]`, then right-shift by 4:
+In this case, the resolution of AD2S1210 is set to 12 bits. At this time, in the 16-bit speed data composed of `buf[2]` and `buf[1]`, only bits 15 to 4 provide valid data, while bits 3 to 0 should be ignored. Therefore, to represent the speed using a 12-bit number, it is necessary to first shift `buf[2]` left by 8 bits, add it to `buf[1]`, and then shift the entire result right by 4 bits:
 
 ```cpp
 velocity0 = ((buf[2] << 8) | buf[1])>>4;
 ```
 
-Next, convert the two's complement to signed magnitude. As an example, with 12-bit resolution the modulus is $ 2^{12}=4096\text{D} $，The two's complement range represents signed values in $ [-2048\text{D},2047\text{D}] $。To compute the two's complement for a negative original value -170 D:
+Next, we need to convert the binary two's complement to the original code. The binary two's complement should be understood according to the following case: assuming the resolution of AD2S1210 is 12 bits, the modulus is $ 2^{12}=4096\text{D} $, and the range of signed original codes that can be represented by the two's complement is $ [-2048\text{D},2047\text{D}] $. When we need to calculate the two's complement corresponding to the original code -170D, we can calculate it according to the following formula:
 
-$ \text{负数补码}=\text{模-负数原码的绝对值}=4096\text{D}-170\text{D}=3926\text{D}=\text{0xF}56 $。Include the sign bit during binary-decimal conversion.
+$ \text{Negative two's complement}=\text{Modulus - Absolute value of negative original code}=4096\text{D}-170\text{D}=3926\text{D}=\text{0xF}56 $. At this time, the sign bit should be included in the conversion between binary and decimal.
 
-Conversely, the absolute value of a negative original number equals modulus - two's complement value:
+Conversely, $ \text{Absolute value of negative original code}=\text{Modulus - Negative two's complement} $:
 
 ```cpp
 velocity = 4096 - velocity0;
 ```
 
-First check the sign bit of the two's complement; if negative, execute:
+First, we judge the sign of the two's complement. If the two's complement is negative, execute the following program:
 
 ```cpp
 if ((velocity0 & 0x800)>>11)
@@ -633,11 +631,11 @@ if ((velocity0 & 0x800)>>11)
 }
 ```
 
-Here `velocity = velocity*1000/2048` converts to the absolute actual speed in decimal. Full-scale ranges are shown in the table below:
+Among them, `velocity = velocity*1000/2048` is to calculate the absolute value of the actual speed represented in decimal. The full-scale range refers to the following table:
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713856888221-6b64efc9-1228-4d7e-991c-06a709070db1.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713856888221-6b64efc9-1228-4d7e-991c-06a709070db1.png" alt="AD2S1210 full-scale range">
 
-If the two's complement is positive, the signed value equals the two's complement; execute:
+Correspondingly, if the two's complement is positive, the original code is the two's complement itself, and the following program is executed:
 
 ```cpp
 else
@@ -649,17 +647,17 @@ else
 }
 ```
 
-Note that binary numbers are stored in two's complement. For example, taking bitwise NOT of 0x7FF: first represent it as 12-bit 011111111111, then invert to 100000000000, which is interpreted by the computer as -2048 in two's complement (sign bit set). Do not drop the leading zero when manipulating bits. Consider ~x as -(x+1).
+In addition, binary numbers in computers are stored in two's complement form. For example, when inverting 0x7FF bit by bit, first supplement it to a 12-bit binary number 011111111111, then invert each bit to get 100000000000. For this value, the computer output is -2048. This is because the computer treats it as a two's complement, with the highest bit as the sign bit. The decimal value of the original code corresponding to the negative two's complement 100000000000 is -2048. Note that the highest bit 0 should not be discarded during bit operations. It is recommended to treat ~x as -(x+1).
 
 ## CAN Bus Configuration
-This project uses CAN-FD which supports frames up to 64 bytes. However, the chosen CAN transceiver TJA1050 does not support FD, so only 8-byte classic frames can be sent.
+This project uses CAN-FD, which supports transmitting 64 bytes of data in one frame. However, due to the limitation that the CAN transceiver chip TJA1050 used does not support this function, it can still only transmit 8 bytes of data.
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1714484801478-24be0570-1941-41c2-8f93-ae863cfd617f.png" alt="" />
+<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1714484801478-24be0570-1941-41c2-8f93-ae863cfd617f.png" alt="CAN bus data transmission">
 
-Here we send the motor position and speed over CAN as two 32-bit floats occupying 8 bytes.
+Here, we use the CAN bus to send the motor's position and speed information to the motor control board. Both data types are 32-bit floating-point numbers, which exactly occupy 8 bytes.
 
-### Baud rate matching
-In the resolver decoder `main` function, CAN initialization is as follows:
+### Baud Rate Matching
+In the `main` function of the resolver decoding board, the CAN bus configuration program is as follows:
 
 ```cpp
 /*** 初始化 ***/
@@ -672,13 +670,13 @@ usart_init(921600);                   /* 串口初始化波特率 */
 fdcan_init(17, 8, 2, 7, FDCAN_MODE_NORMAL);     /* FDCAN初始化*/
 ```
 
-Where:
+Among them:
 
 ```cpp
 uint8_t fdcan_init(uint16_t presc, uint8_t ntsjw, uint16_t ntsg1, uint16_t ntsg2, uint32_t mode)
 ```
 
-On the motor control board, the CAN bus is configured as:
+In the motor control board, the CAN bus configuration program is:
 
 ```cpp
 void MX_FDCAN1_Init(void)
@@ -720,15 +718,15 @@ void MX_FDCAN1_Init(void)
 
 ```
 
-The baud rate formula is:
+The formula for calculating the baud rate is:
 
-$ 波特率=\frac{\text{时钟频率}/\text{presc}}{\text{ntsjw}+\text{ntsg1}+\text{ntsg2}} $
+$ \text{Baud rate}=\frac{\text{Clock frequency}/\text{presc}}{\text{ntsjw}+\text{ntsg1}+\text{ntsg2}} $
 
 After calculation, the two match:
 
 $ \frac{\text{170M}/\text{17}}{\text{8}+\text{2}+\text{7}}=\frac{\text{160M}/\text{16}}{\text{8}+\text{7}+\text{2}} $
 
-### Resolver decoder board transmit routine
+### Resolver Decoding Board Transmission Program
 ```cpp
 void CAN_SendTwoFloats(float value1, float value2) {
 
@@ -742,7 +740,7 @@ void CAN_SendTwoFloats(float value1, float value2) {
 }
 ```
 
-### Motor control board receive routine
+### Motor Control Board Receiving Program
 ```cpp
 /* 读取角度 [0, 2PI] */  
 memcpy(&position, &RxData[0], sizeof(float)); // rad
@@ -751,820 +749,33 @@ memcpy(&position, &RxData[0], sizeof(float)); // rad
 memcpy(&velocity, &RxData[4], sizeof(float)); // rad/s
 ```
 
-## Data direction matching
-For the motor control algorithm, viewed from the motor tail (resolver mounting), counter-clockwise is positive. For the resolver's electrical sign, clockwise is positive. Therefore convert data before transmission:
+## Data Direction Matching
+For the motor control algorithm, when viewed from the resolver installation position at the tail of the motor, counterclockwise rotation is the positive direction. As for the electrical characteristics of the resolver itself, clockwise is positive. Therefore, before transmission, it is necessary to convert the data direction:
 
 ```cpp
 position1 = 360 - position; //算法逆时针为正，旋变顺时针为正
 velocity1 = -1 * velocity;  //算法逆时针为正，旋变顺时针为正
 ```
 
-# Existing Issues
-## Zero-angle offset issue
-The resolver's zero electrical angle and the motor rotor zero angle (rotor aligned with stator a-axis) do not coincide, causing an offset in the motor electrical angle used for control.
+# Existing Problems
+## Zero Angle Problem
+The 0 angle of the resolver (resolver electrical 0 position) is inconsistent with the 0 angle of the motor rotor (the angle when the rotor coincides with the stator a-axis), resulting in a deviation in the actual electrical angle of the motor in motor control.
 
-See:[链接1](https://zhuanlan.zhihu.com/p/139287600)
+For details: [Link 1](https://zhuanlan.zhihu.com/p/139287600) (Chinese)
 
-## Clark and Park transform computational efficiency issue
-Because Clark and Park transforms require floating-point trigonometric calculations, MCU computational load increases significantly, which may prevent LibFOC projects from performing current control correctly (PWM implementation might also be an issue).
+## Computational Efficiency of Clarke and Park Transformations
+Due to the trigonometric floating-point calculations in Clarke and Park transformations, the computational efficiency of the microcontroller will be significantly reduced, making it impossible for projects using LibFOC to normally realize motor current control (it may also be that the PWM program has problems).
 
-It is recommended to use a DMA-based CORDIC accelerator to speed up computations.
+It is recommended to use the DMA-based CORDIC module to accelerate the operation.
 
-See:[链接1](https://blog.csdn.net/zhvngchvng/article/details/131540042)、[链接2](https://www.st.com/resource/en/application_note/dm00614795-getting-started-with-the-cordic-accelerator-using-stm32cubeg4-mcu-package-stmicroelectronics.pdf)、[链接3](https://shequ.stmicroelectronics.cn/thread-635016-1-1.html)
+For details: [Link 1](https://blog.csdn.net/zhvngchvng/article/details/131540042) (Chinese), [Link 2](https://www.st.com/resource/en/application_note/dm00614795-getting-started-with-the-cordic-accelerator-using-stm32cubeg4-mcu-package-stmicroelectronics.pdf), [Link 3](https://shequ.stmicroelectronics.cn/thread-635016-1-1.html) (Chinese)
 
-When configuring CORDIC manually, add `cordic.c`, `stm32g4xx_hal_cordic.c`, `stm32g4xx_hal_II_cordic.c`, and uncomment `#define HAL_CORDIC_MODULE_ENABLED` in `stm32g4xx_hal_conf.h`.
+To manually configure the CORDIC module, in addition to adding `cordic.c`, `stm32g4xx_hal_cordic.c`, and `stm32g4xx_hal_II_cordic.c`, it is also necessary to uncomment the #define HAL_CORDIC_MODULE_ENABLED statement in the `stm32g4xx_hal_conf.h` file.
 
-## Multi-loop control update frequency issue
-In multi-loop control (e.g., outer position loop and inner current loop), the outer loop update rate is usually lower than the inner loop rate.
+## Update Frequency Problem of Multi-Loop Control
+When adopting multi-loop control (such as outer position loop and inner current loop), the update frequency of the outer loop is generally lower than that of the inner loop.
 
-See:[链接1](https://www.zhihu.com/question/383770864/answer/3454138454)、[链接2](https://www.zhihu.com/question/404520965)
+For details: [Link 1](https://www.zhihu.com/question/383770864/answer/3454138454) (Chinese), [Link 2](https://www.zhihu.com/question/404520965) (Chinese)
 
-## Output-side position control issue
-Because the joint position is the harmonic reducer output while feedback is the reducer input (motor position), there is a conversion between motor position control and joint position control. Generally, when the output turns one revolution, the motor shaft turns (reduction ratio + 1) revolutions.
-
----------------------
-
-常用参考资料：[DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md)、[欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season)
-
-# 电机控制板
-## 速度控制
-该部分程序源码位于`2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制`，其使用的 LibFOC 电机控制库是基于 [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md) 以及 [DengFOC_on_STM32](https://github.com/haotianh9/DengFOC_on_STM32) 编写的，程序框架主要基于 CubeMX 进行搭建（HAL 库），工程文件为`2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制\MDK-ARM`的`STM32G4_GPIO.uvprojx`文件。
-
-使用 CubeMX 更新工程前，必须保证用户自己编写的代码放置在/* USER CODE BEGIN xx */与/* USER CODE END xx */结构之间，否则会被删除。
-
-该部分程序控制架构为 FOC，电流控制策略为“直轴电流为零”，控制算法为 PID，PWM 控制技术为“正弦脉宽调制”。位置控制相关代码与速度控制类似，可直接参照本节内容。
-
-![电机控制领域常见概念的分类](https://cdn.nlark.com/yuque/0/2025/webp/33745167/1742302430811-43780d8d-265c-4535-8e01-2173e5e24d32.webp)
-
-### 单片机配置
-从 `main.c`文件第 143 行主函数 `main()`开始，首先对单片机进行了配置，该部分可参考 [欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season) 进行学习，相关源码如下。
-
-```cpp
-/* 单片机配置 --------------------------------------------------------*/
-
-/* 重设外设、内存、时钟 */
-HAL_Init();
-
-/* 系统时钟配置 */
-SystemClock_Config();
-
-/* 初始化外设 */
-MX_GPIO_Init();
-MX_DMA_Init();
-MX_ADC1_Init();
-MX_ADC2_Init();
-MX_OPAMP1_Init();
-MX_OPAMP2_Init();
-MX_OPAMP3_Init();
-MX_TIM1_Init();
-MX_COMP1_Init();
-MX_DAC3_Init();
-MX_DAC1_Init();
-MX_FDCAN1_Init();
-MX_USART3_UART_Init();
-
-/* 延时函数初始化 */
-delay_init(160);
-
-/* FDCAN总线初始化 */
-FDCAN_Config();
-
-/* 如通过插座开关物理按键控制电机启停，需待母线电压稳定后再执行后续程序 */
-delay_ms(1000);
-
-/* 内部运放的使能 */
-HAL_OPAMP_Start(&hopamp1);
-HAL_OPAMP_Start(&hopamp2);
-HAL_OPAMP_Start(&hopamp3);
-
-/* ADC自校验，消除寄生电容带来的误差值*/
-HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-
-__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_FLAG_JEOC);
-__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_FLAG_EOC);
-__HAL_ADC_CLEAR_FLAG(&hadc2, ADC_FLAG_JEOC);
-
-/* ADC转换中断使能 */
-HAL_ADCEx_InjectedStart_IT(&hadc1);
-HAL_ADCEx_InjectedStart(&hadc2); // ADC2不需要中断
-
-/* 高级计数器TIM1寄存器值设定 */
-TIM1->ARR = 8000 - 1;  // TIM1计数最大值
-TIM1->CCR4 = 8000 - 2; // TIM1通道4比较值，ADC采样与转换存在时间延迟，故预留出1次计数周期
-
-HAL_TIM_Base_Start(&htim1);               // 开启TIM1时钟计数
-HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4); // TIM1通道4使能
-
-/* 高级计数器TIM1各通道使能 */
-HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
-HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
-
-/* DAC比较封波 */
-HAL_DAC_Start(&hdac3, DAC_CHANNEL_1);
-HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
-HAL_DAC_SetValue(&hdac3, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 2550); // 2500, 2140 根据式（5-3）中的value_ADC设置
-HAL_COMP_Start(&hcomp1);
-```
-
-#### ADC 与 DAC
-ADC 相关配置文件见`main.c`文件第 156 行到 157 行，`MX_ADC1_Init()`和 `MX_ADC2_Init()`。本程序中，ADC1 规则组通道 11 用于采集母线电压，其单边采样范围为[0, 3.3 V]，采样周期为 2.5 个时钟周期，时钟分频为 4 分频，采样分辨率为 12 位，数据右对齐，通过软件触发采样。在所设计的控制板卡中，无框力矩电机的母线电压经阻值为 75 kΩ 与 3 kΩ 的电阻分压后，由 3 kΩ 的电阻输入至微控制器的 ADC 接口中，故实际母线电压与 ADC 采样值之间的转换关系为：
-
-![](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289033349-8646c99e-4007-47fb-a5ad-1e380877cab4.png)
-
-ADC1 注入组通道 3、通道 12，ADC2 注入组通道 3 用于采集三相电流。由于本关节所选用的电机允许通过的最大电流为 61 A，控制板卡使用了标称阻值为 1 mΩ，最大工作电流为 77 A 的采样电阻对电机绕组的相电压进行低端采样。所采得的相电压通过微控制器的内部运算放大器 OPAMP 进行偏置与放大，最后输入到 ADC 接口中。其中，微控制器 OPAMP 的增益通过外部电阻进行配置，本电路将增益值配置为 22/3。微控制器的 ADC 接口与 OPAMP 的输出端进行级联，经 OPAMP 放大后的采样信号通过 ADC 的注入组进行模数转换，注入组的优先级高于规则组，单边采样范围为[0, 3.3 V]，采样周期为 2.5 个时钟周期，采样触发信号来自高级定时器 TIM1。为保证 ADC 的输入电压在单边采样电压范围之内，本控制板卡在微控制器的 OPAMP 接口外使用分压电阻对 ADC 输入电压正向偏置 1.65 V。偏置之后，考虑到 22/3 的 OPAMP 运放增益和 1 mΩ 低端采样电阻的分压，可以得到 ADC 端口输入电压与 ADC 采样值以及相电流之间的关系为：
-
-![](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289223431-c9d8b2ac-5ed2-4201-8a40-5c32713ef959.png)
-
-在`main.c`文件第 210 行到 213 行，我们设置了 DAC 比较封波，防止相电流过流。若 ADC 电流采样值超过了 `HAL_DAC_SetValue`函数的输入`Data`，则高级定时器 PWM 发波将停止。
-
-#### 高级定时器
-在单片机的外设中，高级计数器 TIM1 起到 PWM 发波以及控制程序执行周期的作用。就 TIM1 的配置来说，其预分频器 `PSC` 为 1 分频，重复计数寄存器 `RCR` 的值为 1，即在一个周期内仅触发一次更新事件。
-
-TIM1 通道 1 到通道 3 的工作模式为互补 PWM 输出模式， PWM 模式为 1，计数模式为[中心对齐模式](https://www.zhihu.com/question/419152940)。TIM1 的相关配置程序位于 `main.c`文件第 161 行函数 `MX_TIM1_Init()`中。
-
-为防止全桥模块上下桥臂同时导通， TIM1 的死区时间被设置为 1.5 微秒，对应的`DTG`寄存器的值为 0x78。
-
-$ \begin{align}
-\text{DT}&=\text{DTG}[7:0]*t_{dtg}\\
-&=120*\frac{1}{160\text{M}}*2(备注：\text{CKD}分频系数）\\
-&=1500ns\\
-\end{align} $
-
-由 `main.c`文件第 195 行可知，自动装载寄存器 `ARR` 的值为 7999。由此可得 TIM1所发出的 PWM 波的频率$ f_{\text{PWM}} $为：
-
-$ f_{\text{PWM}} =160\text{MHz}/(7999+1)/2=10\text{kHz} $。其中，频率除以 2 是中心对齐模式决定的。
-
-配置为无输出模式的 TIM1 通道 4 主要用于产生 TRGO 信号以触发 ADC 外设的三相电流采样，其 PWM 模式为 2。为了保证采样值的稳定，采样触发时刻三相全桥逆变电路的下桥臂需全部打开。为此，在中心对齐模式中，寄存器 `CCR4` 的值应接近上溢值 7999。由于ADC 存在采样与转换延迟，在`main.c`文件第 196 行中，其大小设为 7998。
-
-### while 循环
-从 `main.c`文件第 215 行到第 223 行之间的 while 循环中的函数比较简单，仅用于 ADC 软件触发以及[母线电压采样](https://zhuanlan.zhihu.com/p/495852697)。ADC 转换公式参照本文档`ADC 与 DAC`部分。
-
-```cpp
-while (1)
-{
-    /*** 母线电压采样 ***/
-    /* ADC软件触发*/
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_Start(&hadc2);
-    adc_vbus = HAL_ADC_GetValue(&hadc2);
-    load_data[0] = adc_vbus * 3.3f / 4096 * 26;
-}
-```
-
-### ADC 中断回调函数
-```cpp
-/*** ADC中断回调函数 ***/
-void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    UNUSED(hadc);
-    if (hadc == &hadc1)
-    {
-        /**************/
-        /*** 速度环 ***/
-        /**************/
-        count_velocity++;
-        if (count_velocity >= steps_velocity)
-        {
-            /* 读取角度 [0, 2PI] */  
-            memcpy(&position, &RxData[0], sizeof(float)); // rad
-
-            /* 读取旋转变压器测得的速度 (rad/s) */
-            memcpy(&velocity, &RxData[4], sizeof(float)); // rad/s
-
-            /* 低通滤波 */
-            velocity = LowPassFilter_operator(velocity, &filter_velocity); // 低通滤波
-
-            /* 误差计算 */
-            velocity_error = velocity_ref - DIR * velocity;
-
-            /* 使用 PID_operator 输出电流参考值 */
-            velocity_error = velocity_error / M_PI * 180;
-            uq_ref = PID_operator(velocity_error, &pid_velocity);
-
-            /* 参考电流赋值 */
-            position_e = _electricalAngle(position);
-            setPhaseVoltage(uq_ref, 0, position_e, TIM1);
-
-            count_velocity = 0;
-        }
-
-        /***********************/
-        /*** 控制串口发送间隔 ***/
-        /***********************/
-
-        count_vofa++;
-        if (count_vofa >= steps_vofa)
-        {
-            /* 向上位机发送信息 */
-            load_data[1] = ia;
-            load_data[2] = ib;
-            load_data[3] = ic;
-            load_data[4] = id_filtered;
-            load_data[5] = iq_filtered;
-            load_data[6] = 0;
-            load_data[7] = position;
-            load_data[8] = velocity;
-
-            memcpy(tempData, (uint8_t *)&load_data, sizeof(load_data));
-            HAL_UART_Transmit_DMA(&huart3, (uint8_t *)tempData, 40);
-
-            count_vofa = 0;
-        }
-    }
-}
-```
-
-当 TIM1 高级计数器的`CNT`寄存器递增至 `CCR4`比较值时，将触发 ADC 中断回调函数。此时，ADC 注入组完成电流采样，并执行与电机控制直接相关的程序。
-
-#### 程序执行周期控制
-该部分程序常见以下结构：
-
-```cpp
-count++;
-if (count >= steps)
-{
-    /* 电机控制程序 */
-    /*   ......    */
-    count = 0;
-}
-```
-
-这是为了控制相关程序的执行周期。比如，设 `steps = 100`，那么，ADC 中断回调函数每执行 100 次，才会运行一次该 if 结构中的程序。该结构多用于调整多级控制（如位置环+电流环）不同回路的运行频率（[链接 1](https://www.zhihu.com/question/383770864/answer/3454138454)，[链接 2](https://www.cnblogs.com/zhongzhe/archive/2012/11/14/2770781.html)），或限制通过串口向上位机发送数据的频率（这一过程耗时较长，影响算法执行效率）。VOFA 上位机串口协议教程参考 [链接](https://www.bilibili.com/video/BV1nH4y1X72k?spm_id_from=333.788.videopod.sections&vd_source=ad856f51618186902c24682a8c8279ff)。
-
-#### 低通滤波
-在电机控制中，传感器测量到的速度数据往往存在较大的波动（对位置数据微分进而求解速度导致）。为保证电机平稳运转，往往需要对速度数据进行[低通滤波](https://www.zhihu.com/question/518024588/answer/3364056229)。离散空间中的低通滤波可视为将当前时刻采集的数据与上一时刻采集的数据进行加权求和，使数据平滑。
-
-![低通滤波前的速度数据](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893237-142a47e9-c4ad-4f06-9b17-b14deebce00f.png)![低通滤波后的速度数据](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893193-813a6be1-2f27-480c-8acc-be5374d5afd4.png)
-
-#### 逆变换
-`setPhaseVoltage`函数 将 q 轴电压转换为三相电压，其程序为：
-
-```cpp
-void setPhaseVoltage(float Uq,float Ud, float angle_el, TIM_TypeDef * TIM_BASE) {
-
-    //  angle_el = _normalizeAngle(angle_el + zero_electric_angle);
-
-    Uq = _constrain(Uq,-(voltage_power_supply)/2,(voltage_power_supply)/2);
-
-    /* 帕克逆变换(不考虑Ud）*/
-    float Ualpha =  -Uq*sin(angle_el);
-    float Ubeta  =   Uq*cos(angle_el);
-
-    /* 帕克逆变换(考虑Ud) */
-    //	float Ualpha = Ud*cos(angle_el) - Uq*sin(angle_el);
-    //  float Ubeta  = Ud*sin(angle_el) + Uq*cos(angle_el);
-
-    /* 克拉克逆变换 */
-    float Ua =                    Ualpha + voltage_power_supply/2;
-    float Ub = (_SQRT3*Ubeta - Ualpha)/2 + voltage_power_supply/2;
-    float Uc = (-Ualpha -_SQRT3*Ubeta)/2 + voltage_power_supply/2;
-
-    setPWM(Ua,Ub,Uc,TIM_BASE);
-}
-```
-
-在该部分程序中，我们将控制器输出的 Uq 大小限制在`±母线电压/2`范围内，并在克拉克逆变换中将相电压整体上移 `母线电压/2`，这是由 PWM 调制的特性决定的。详细讲解请参照 [链接](https://zhuanlan.zhihu.com/p/99976227)。
-
-
-
-## 电流控制
-该部分程序源码位于`2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环`，其使用的 MATLAB 电机控制库是基于 `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.2. Simulink仿真及程序生成\IF` 中的 svpwm 子系统，利用 Embedded Coder 生成的（相关教程可参照《STM32G4 Simulink FOC开发套件用户手册》第十三章，以及相对应的[视频](https://www.bilibili.com/video/BV12C4y1f78j/?spm_id_from=333.1387.collection.video_card.click&vd_source=ad856f51618186902c24682a8c8279ff)），程序框架主要基于 CubeMX 进行搭建（HAL 库），工程文件为`交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环\MDK-ARM`的`STM32G4_GPIO.uvprojx`文件。
-
-![svpwm 子系统](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742361984092-4a7872d5-4eb9-4c5f-b7d4-07fe5801d450.png)
-
-该部分程序控制架构为 FOC，电流控制策略为“直轴电流为零”，控制算法为 PID，PWM 控制技术为“空间矢量脉宽调制 SVPWM”。
-
-### ADC 中断回调函数
-电流控制程序与使用 LibFOC 的速度控制程序的主要区别，是在ADC 中断回调函数，对电机的三相电流进行了采集。
-
-#### 电流采样偏置值计算
-首先，为补偿 ADC 的零漂，在主要控制程序执行前，对电流采样偏置值进行了计算。
-
-```cpp
-/* 电流采样偏置值（零漂）计算 */
-if (ADC_offset == 0)
-{
-    cnt++;
-    adc1_in1 = hadc1.Instance->JDR1; // 下桥臂导通时，U相低端采样电压经偏置与放大后的ADC值
-    adc1_in2 = hadc2.Instance->JDR1; // 下桥臂导通时，V相低端采样电压经偏置与放大后的ADC值
-    adc1_in3 = hadc1.Instance->JDR2; // 下桥臂导通时，W相低端采样电压经偏置与放大后的ADC值
-    IA_Offset += adc1_in1;
-    IB_Offset += adc1_in2;
-    IC_Offset += adc1_in3;
-    if (cnt >= 10)
-    {
-        ADC_offset = 1; // 只计算一次
-        IA_Offset = IA_Offset / 10;
-        IB_Offset = IB_Offset / 10;
-        IC_Offset = IC_Offset / 10;
-    }
-}
-```
-
-以上对偏置值的计算仅执行一次。接下来，根据 ADC 采样值与偏置值，对相电流进行了计算，并作为电流控制过程中的反馈信号，输入至控制算法中。
-
-#### 电流控制注意事项
-```cpp
-else
-{
-    /****************/				
-    /*** 闭环电流 ***/
-    /****************/
-
-    /* 低端电流采样 */
-    adc1_in1 = hadc1.Instance->JDR1;
-    adc1_in2 = hadc2.Instance->JDR1;
-    adc1_in3 = hadc1.Instance->JDR2;
-
-    /* 相电流反馈 */
-    ia = (adc1_in1 - IA_Offset) * 0.02197265625f; // 欧拉电子: 0.02197265625f
-    ib = (adc1_in2 - IB_Offset) * 0.02197265625f; // 控制板v2.1: 0.10986328125f
-    ic = (adc1_in3 - IC_Offset) * 0.02197265625f;
-
-    /* 读取角度 [0, 2PI] */
-    memcpy(&position, &RxData[0], sizeof(float)); // (rad)
-    memcpy(&velocity, &RxData[4], sizeof(float));	// (rad/s)
-
-    /* 关节电角度反馈（rad）*/
-    position_e = _electricalAngle(position);						
-
-    /* Clark与Park变换 */				
-    iq = cal_Iq(ia, ib, position_e);
-    id = cal_Id(ia, ib, position_e);
-
-    /* 使用 PID_operator 输出电压参考值 */					
-    iq_error = iq_ref - iq;
-    id_error = id_ref - id;
-
-    /* 电流滤波 */
-    iq_error = LowPassFilter_operator(iq_error, &filter_current);
-    id_error = LowPassFilter_operator(id_error, &filter_current);						
-
-    uq = PID_operator(iq_error, &pid_current);
-    ud = PID_operator(id_error, &pid_current);					
-
-    /*************/
-    /*** SVPWM ***/
-    /*************/
-
-    rtU.position_e = position_e;
-    rtU.uq = uq;
-    rtU.ud = ud;
-
-    svpwm_step();
-
-    /* 更新高级定时器CCR寄存器值，调整PWM占空比 */
-    TIM1->CCR1 = rtY.tABC[0];
-    TIM1->CCR2 = rtY.tABC[1];
-    TIM1->CCR3 = rtY.tABC[2];
-
-    /***********************/
-    /*** 控制串口发送间隔 ***/
-    /***********************/
-
-    count_vofa++;
-    if (count_vofa >= steps_vofa)
-    {
-        /* 向上位机发送信息 */
-        load_data[1] = ia;
-        load_data[2] = ib;
-        load_data[3] = ic;
-        load_data[4] = id;
-        load_data[5] = iq;
-        load_data[6] = 0;
-        load_data[7] = position;
-        load_data[8] = velocity;
-
-        memcpy(tempData, (uint8_t *)&load_data, sizeof(load_data));
-        HAL_UART_Transmit_DMA(&huart3, (uint8_t *)tempData, 40);
-
-        count_vofa = 0;
-    }
-    /************************/
-}
-
-```
-
-![全局宏定义](https://cdn.nlark.com/yuque/0/2025/png/33745167/1742364165223-214e3aa5-4096-4c45-a1d8-e24986f16801.png)
-
-使用 Embedded Coder 将 Simulink 子系统转化为可以直接运行的嵌入式程序后，子系统的输入在 `rtU`结构体中进行定义，输出在 `rtY`结构体中进行定义，主程序通过`xxx_step()`函数执行。
-
-:::danger
-需要注意的是，若使用自主研发的电机控制板 v2.1，而非欧拉电子提供的电机控制板，除配置 GPIO 以及外设外，需要在 Keil 的全局宏定义中将`STM32G431xx`替换为 `STM32G474xx`，同时需要将ADC 采样值与偏置值之差到相电流的换算增益修改为0.10986328125f。
-
-嵌入式程序中，在[浮点数后加 f](http://www.openedv.com/thread-40175-1-1.html) 可提升计算效率。
-
-:::
-
-# 旋变解码板
-该部分程序源码位于`2.1. 程序\2.1.1. 嵌入式\旋变解码板`，程序框架主要基于正点原子的工程模板进行搭建（HAL 库），工程文件为`交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\旋变解码板\Board_2.2_CAN_tune\Projects\MDK-ARM`的`atk_g474.uvprojx`文件。
-
-旋变解码板主要基于 [AD2S1210](https://www.analog.com/cn/products/ad2s1210.html) 芯片，将旋转变压器输出的模拟电压信号转换为数字位置与速度信号，由软件模拟 SPI 总线（通过 GPIO 口直接模拟 SPI 协议的高低电平时序）进行读取，再通过 CAN 总线发送至电机控制板。
-
-## AD2S1210 驱动程序
-该部分程序主要基于软件 SPI 实现 STM32 与 AD2S1210 之间的读写，可参考 [链接](https://www.analog.com/cn/products/ad2s1210.html#software-resources) 中的软件资源->AD2S1210 参考代码部分。
-
-### 常用函数
-:::danger
-要格外注意驱动程序中延时函数 `delay` 的实际延时时间。一方面，它会影响驱动的时序；另一方面，它会对程序的执行效率带来影响。
-
-:::
-
-#### 初始化函数
-上电时，AD2S1210对各引脚的时序有一定的要求：
-
-![](https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png)
-
-其中，$ \text{t}_\text{RST} $至少为$ 10\mu $秒，$ \text{t}_\text{TRACK} $的长短与分辨率有关：
-
-![](https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png)
-
-据此，我们编写了AD2S1210的初始化函数：
-
-```cpp
-void AD2S1210Initiate()
-{
-//RESET->0 initially  
-	CLR_RESET();  
-	SET_SPL();
-	delay_us(20);
-	SET_RESET(); 
-  delay_ms(20);//delay_ms(10);
-	CLR_SPL();
-	delay_ms(1);
-	SET_SPL();
-}
-```
-
-#### 工作模式选择函数
-拉低或拉高`A0`和`A1`两个引脚可以选择AD2S1210的工作模式，我们编写了相应的函数来实现该功能：
-
-```cpp
-void AD2S1210SelectMode(unsigned char mode)
-{
-	if (mode==POSITION)
-	{
-		CLR_A0();
-		CLR_A1();
-		delay(1);//delay_ms(1);		//Normal Mode position output
-	}
-	else if (mode==VELOCITY)
-	{
-		CLR_A0();
-		SET_A1();
-		delay(1);//delay_ms(1);		//Normal Mode velocity output
-	}
-	else if (mode==CONFIG)
-	{
-		SET_A0();
-		SET_A1();
-		delay(1);//delay_ms(1);		//Configuration Mode
-	}
-}
-```
-
-#### 写函数
-向AD2S1210的片内寄存器写入数据，是在配置模式下完成的。首先需要向SPI接口发送8位寄存器地址，再发送8位数据。本项目直接使用软件 SPI 写函数。每发送一次数据后，需要拉高`WR#`引脚，利用上升沿锁存数据。
-
-```cpp
-void WriteToAD2S1210(unsigned char address, unsigned char data)
-{
-	unsigned	char	buf;
-
-	//write control register address
-	buf = address;
-
-	SET_SCLK();
-	delay(1);//delay_ms(4);
-	SET_CS();
-	delay(1);//delay_ms(4);
-	CLR_CS();
-	delay(1);//delay_ms(4);
-	
-	SET_WR();
-	delay(1);//delay_ms(4);
-	CLR_WR();
-	delay(1);//delay_ms(4);
-
-	SPIWrite(1,&buf);	  	 
-	
-	SET_WR();
-	delay(1);//delay_ms(4);	
-	SET_CS();	
-	//write control register address
-
-	//write control register data
-	buf = data;
-
-	SET_SCLK();
-	delay(1);//delay_ms(4);
-	SET_CS();
-	delay(1);//delay_ms(4);
-	CLR_CS();
-	delay(1);//delay_ms(4);
-	
-	SET_WR();
-	delay(1);//delay_ms(4);
-	CLR_WR();
-	delay(1);//delay_ms(4);
-
-	SPIWrite(1,&buf);	  	 
-
-	SET_WR();
-	delay(1);//delay_ms(4);	
-	SET_CS();
-	//write control register data
-}
-```
-
-相应信号时序如下：
-
-![](https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513847865-b88101a4-3073-42c1-abbe-9eb9b28bea7f.png)
-
-#### 读函数
-无论是普通模式还是配置模式，都可以读取 AD2S1210 的位置寄存器或速度寄存器，而要读取其他寄存器，则只能在配置模式下进行。在配置模式下读取数据，我们需要向 SPI 接口发送目标寄存器的地址。在读取位置寄存器或速度寄存器中的数据前，需要先拉高，再拉低`SAMPLE#`引脚，以更新数据。
-
-```cpp
-void ReadFromAD2S1210(unsigned char mode, unsigned char address, unsigned char * buf)
-{
-	if (mode==CONFIG)
-	{
-		
-		//write control register address
-		buf[0] = address;
-
-		SET_SCLK();
-		delay(1);//delay_ms(4);
-		SET_CS();
-		delay(1);//delay_ms(4);
-		CLR_CS();
-		delay(1);//delay_ms(4);
-		
-		SET_WR();
-		delay(1);//delay_ms(4);
-		CLR_WR();
-		delay(1);//delay_ms(4);
-
-		SPIWrite(1,buf);
-
-		SET_WR();
-		delay(1);//delay_ms(4);	
-		SET_CS();
-		//write control register address
-
-
-		//read 1-byte register
-		SET_SCLK();
-			
-		SET_CS();
-		SET_WR();
-		delay(1);//delay_ms(4);
-	
-		CLR_CS();
-		delay(1);//delay_ms(4);
-	
-		CLR_SCLK();	
-		delay(1);//delay_ms(1);
-		
-		CLR_WR();
-		delay(1);//delay_ms(4);
-
-		SPIRead(1,buf);	
-
-		SET_WR();
-		delay(1);//delay_ms(4);
-
-		SET_CS();
-		//read 1-byte register
-	}
-	else if (mode==POSITION||mode==VELOCITY)
-	{
-		SET_SPL();
-		delay(1);//delay_ms(1);
-		CLR_SPL();
-		delay(5);//delay_ms(5);
-
-		//read 3-byte register 
-		SET_SCLK();
-				
-		SET_CS();
-		SET_WR();
-		delay(1);//delay_ms(4);
-		
-		CLR_CS();
-		delay(1);//delay_ms(4);
-	
-		CLR_SCLK();	
-		delay(1);//delay_ms(4);
-			
-		CLR_WR();
-		delay(1);//delay_ms(4);
-	
-		SPIRead(3,buf);		//read data register
-	
-		SET_WR();
-		delay(1);//delay_ms(4);
-	
-		SET_CS();
-		//read 3-byte register
-
-
-	}
-}
-```
-
-配置模式下读取数据的信号时序：
-
-![](https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513904592-947b64f0-4943-41fe-b162-1eb0af381ca2.png)
-
-普通模式下读取数据的信号时序：
-
-![](https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png)
-
-### 速度补码转换
-旋变解码器 AD2S1210 所解得的速度值以 16 位二进制补码的形式储存于速度寄存器 0x82 与 0x83。按照 AD2S1210 在普通模式下进行位置与速度读取的约定，使用函数 `ReadFromAD2S1210(VELOCITY, POS_VEL, buf)`返回的 `unsigned char buf[4]` 中存有 24 位宽的移位寄存器值。其中，`buf[2]`到 `buf[1]`以 MSB 优先的方式（MSB 位于`buf[2]`）存有表示速度的16 位二进制补码，`buf[0]`存有故障寄存器的数据。故障寄存器各位含义如下表所示：
-
-![](https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png)
-
-本案例中，AD2S1210 的分辨率被设为 12 位。这时，在`buf[2]`和`buf[1]`组成的 16 位速度数据中，仅位 15 到位 4 提供有效数据，位 3 到位 0 则应忽略。因此，要使用 12 进制数表示速度，应先将`buf[2]`左移 8 位后与`buf[1]`相加，再整体右移 4 位：
-
-```cpp
-velocity0 = ((buf[2] << 8) | buf[1])>>4;
-```
-
-接下来，我们需要将二进制补码转换为原码。二进制补码应按以下案例进行理解：假设 AD2S1210 的分辨率为 12 位，那么模为$ 2^{12}=4096\text{D} $，补码所能表示的带符号原码的区间为$ [-2048\text{D},2047\text{D}] $。当我们需要计算原码-170D 所对应的补码时，可按以下公式计算
-
-$ \text{负数补码}=\text{模-负数原码的绝对值}=4096\text{D}-170\text{D}=3926\text{D}=\text{0xF}56 $。此时，符号位应被包括到二进制与十进制的转换中。
-
-反过来，$ 负数原码的绝对值=模-负数的补码 $：
-
-```cpp
-velocity = 4096 - velocity0;
-```
-
-首先，我们判断补码的符号，若补码为负，则执行以下程序：
-
-```cpp
-if ((velocity0 & 0x800)>>11)
-{
- velocity = 4096 - velocity0;
- velocity = velocity*1000/2048;
- printf("rps: -%f\n",velocity);
- printf("error: %X\n",buf[0]);
-}
-```
-
-其中，`velocity = velocity*1000/2048`是计算用十进制表示的实际速度的绝对值。满量程范围参考下表：
-
-![](https://cdn.nlark.com/yuque/0/2024/png/33745167/1713856888221-6b64efc9-1228-4d7e-991c-06a709070db1.png)
-
-相应地，若补码为正，则原码即为补码本身，执行以下程序：
-
-```cpp
-else
-{
- velocity = velocity0;
- velocity = velocity*1000/2048;
- printf("rps: %f\n",velocity);
- printf("error: %X\n",buf[0]);
-}
-```
-
-另外，计算机中的二进制数以补码的形式存储。比如，对 0x7FF 按位取反，首先将其补充为12位二进制数 011111111111，再按位取反，得到 100000000000。对于该值，计算机的输出为-2048。这是由于计算机将其视为补码，最高位视为符号位。负数补码 100000000000 所对应的原码的十进制为-2048。注意位与时不要舍去最高位的 0。建议将~x 视为-(x+1)。
-
-## CAN 总线配置
-本项目采用 CAN-FD ，支持一帧传输 64 字节的数据。然而，限于所使用的 CAN 收发芯片 TJA1050 不支持该功能，故仍然仅能传输 8 字节的数据。
-
-![](https://cdn.nlark.com/yuque/0/2024/png/33745167/1714484801478-24be0570-1941-41c2-8f93-ae863cfd617f.png)
-
-在这里，我们使用 CAN 总线向电机控制板发送电机的位置与速度信息，它们的数据类型都是 32 位浮点数，刚好占满 8 字节。
-
-### 波特率匹配
-在旋变解码板的`main`函数中，CAN 总线配置程序如下：
-
-```cpp
-/*** 初始化 ***/
-HAL_Init();                           /* 初始化HAL库 */
-sys_stm32_clock_init(85, 2, 2, 4, 8); /* 设置时钟,170Mhz */
-delay_init(170);                      /* 延时初始化 */
-
-usart_init(921600);                   /* 串口初始化波特率 */	
-
-fdcan_init(17, 8, 2, 7, FDCAN_MODE_NORMAL);     /* FDCAN初始化*/
-```
-
-其中：
-
-```cpp
-uint8_t fdcan_init(uint16_t presc, uint8_t ntsjw, uint16_t ntsg1, uint16_t ntsg2, uint32_t mode)
-```
-
-在电机控制板的中，CAN 总线配置程序为：
-
-```cpp
-void MX_FDCAN1_Init(void)
-{
-
-  /* USER CODE BEGIN FDCAN1_Init 0 */
-
-  /* USER CODE END FDCAN1_Init 0 */
-
-  /* USER CODE BEGIN FDCAN1_Init 1 */
-
-  /* USER CODE END FDCAN1_Init 1 */
-  hfdcan1.Instance = FDCAN1;
-  hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-  hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
-  hfdcan1.Init.AutoRetransmission = DISABLE;
-  hfdcan1.Init.TransmitPause = DISABLE;
-  hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 16;
-  hfdcan1.Init.NominalSyncJumpWidth = 8;
-  hfdcan1.Init.NominalTimeSeg1 = 7;
-  hfdcan1.Init.NominalTimeSeg2 = 2;
-  hfdcan1.Init.DataPrescaler = 16;
-  hfdcan1.Init.DataSyncJumpWidth = 8;
-  hfdcan1.Init.DataTimeSeg1 = 7;
-  hfdcan1.Init.DataTimeSeg2 = 2;
-  hfdcan1.Init.StdFiltersNbr = 1;
-  hfdcan1.Init.ExtFiltersNbr = 1;
-  hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
-  if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN FDCAN1_Init 2 */
-
-  /* USER CODE END FDCAN1_Init 2 */
-}
-
-```
-
-波特率的计算公式为：
-
-$ 波特率=\frac{\text{时钟频率}/\text{presc}}{\text{ntsjw}+\text{ntsg1}+\text{ntsg2}} $
-
-经计算，两者匹配：
-
-$ \frac{\text{170M}/\text{17}}{\text{8}+\text{2}+\text{7}}=\frac{\text{160M}/\text{16}}{\text{8}+\text{7}+\text{2}} $
-
-### 旋变解码板发送程序
-```cpp
-void CAN_SendTwoFloats(float value1, float value2) {
-
-    // 将第一个浮点数的4字节二进制表示放入缓冲区
-    memcpy(&buffer[0], &value1, sizeof(float));
-
-    // 将第二个浮点数的4字节二进制表示放入缓冲区
-    memcpy(&buffer[4], &value2, sizeof(float));
-	
-    fdcan1_send_msg(buffer, FDCAN_DLC_BYTES_8); /* 发送8个字节 */
-}
-```
-
-### 电机控制板接收程序
-```cpp
-/* 读取角度 [0, 2PI] */  
-memcpy(&position, &RxData[0], sizeof(float)); // rad
-
-/* 读取旋转变压器测得的速度 (rad/s) */
-memcpy(&velocity, &RxData[4], sizeof(float)); // rad/s
-```
-
-## 数据方向匹配
-对电机控制算法而言，从电机尾部旋变安装位置看去，逆时针旋转为正方向。而就旋转变压器本身的电气特性而言，顺时针为正。故在传递之前，需对数据方向进行转换：
-
-```cpp
-position1 = 360 - position; //算法逆时针为正，旋变顺时针为正
-velocity1 = -1 * velocity;  //算法逆时针为正，旋变顺时针为正
-```
-
-# 现有问题
-## 零位角问题
-旋转变压器的 0 角度（旋变电气 0 位置）与电机转子的 0 角度（转子与定子 a 轴重合时的角度）不一致，导致电机控制中电机实际的电角度有偏差。
-
-详见：[链接1](https://zhuanlan.zhihu.com/p/139287600)
-
-## 克拉克变换与帕克变换计算效率问题
-由于克拉克变换与帕克变换中包含三角函数浮点计算问题，单片机的计算效率将大幅降低，导致使用 LibFOC 的工程无法正常实现电机的电流控制（也有可能是 PWM 程序有问题）。
-
-建议使用基于 DMA 的 CORDIC 模块，以加速运算。
-
-详见：[链接1](https://blog.csdn.net/zhvngchvng/article/details/131540042)、[链接2](https://www.st.com/resource/en/application_note/dm00614795-getting-started-with-the-cordic-accelerator-using-stm32cubeg4-mcu-package-stmicroelectronics.pdf)、[链接3](https://shequ.stmicroelectronics.cn/thread-635016-1-1.html)
-
-手动配置 CORDIC 模块，除需添加 `cordic.c`、`stm32g4xx_hal_cordic.c`、`stm32g4xx_hal_II_cordic.c`之外，还需在 `stm32g4xx_hal_conf.h`文件中，取消 #define HAL_CORDIC_MODULE_ENABLED 语句的注释。
-
-## 多环控制更新频率问题
-当采用多环控制时（如外环位置环，内环电流环），外环的更新频率一般低于内环的更新频率。
-
-详见：[链接1](https://www.zhihu.com/question/383770864/answer/3454138454)、[链接2](https://www.zhihu.com/question/404520965)
-
-## 输出端位置控制问题
-由于关节位置通过谐波减速器输出，而反馈回的位置信息是谐波减速器的输入（电机位置），电机位置控制与关节位置控制之间存在一个转换关系。一般地，当谐波减速器输出端转过一圈时，电机端转过“减速比 + 1”圈。
-
+## Output End Position Control Problem
+Since the joint position is output through a harmonic reducer, and the feedback position information is the input of the harmonic reducer (motor position), there is a conversion relationship between motor position control and joint position control. Generally, when the output end of the harmonic reducer rotates one circle, the motor end rotates "reduction ratio + 1" circles.
