@@ -1,3 +1,4 @@
+[中文](README_CN.md).
 # Motor Control Board
 ## Speed Control
 The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制`. The LibFOC motor control library used is based on [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md) and [DengFOC_on_STM32](https://github.com/haotianh9/DengFOC_on_STM32). The program framework is mainly built using CubeMX (HAL library), and the project file is `STM32G4_GPIO.uvprojx` in `2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制\MDK-ARM`.
