@@ -772,10 +772,7 @@ velocity1 = -1 * velocity;  //算法逆时针为正，旋变顺时针为正
 
 详见：[链接1](https://blog.csdn.net/zhvngchvng/article/details/131540042)、[链接2](https://www.st.com/resource/en/application_note/dm00614795-getting-started-with-the-cordic-accelerator-using-stm32cubeg4-mcu-package-stmicroelectronics.pdf)、[链接3](https://shequ.stmicroelectronics.cn/thread-635016-1-1.html)
 
-:::warning
 手动配置 CORDIC 模块，除需添加 `cordic.c`、`stm32g4xx_hal_cordic.c`、`stm32g4xx_hal_II_cordic.c`之外，还需在 `stm32g4xx_hal_conf.h`文件中，取消 #define HAL_CORDIC_MODULE_ENABLED 语句的注释。
-
-:::
 
 ## 多环控制更新频率问题
 当采用多环控制时（如外环位置环，内环电流环），外环的更新频率一般低于内环的更新频率。
