@@ -1,21 +1,10 @@
-:::info
 常用参考资料：[DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md)、[欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season)
-
-:::
-
-:::warning
-更新后的交接材料中，部分工程代码同本文档有所改动，但大致思路不变
-
-:::
 
 # 电机控制板
 ## 速度控制
 该部分程序源码位于`2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制`，其使用的 LibFOC 电机控制库是基于 [DengFOC](https://dengfoc.com/#/dengfoc/%E7%81%AF%E5%93%A5%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%86%99FOC%E7%AE%97%E6%B3%95/%E5%BA%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%87%BA%E8%BF%99%E7%B3%BB%E5%88%97%E8%AF%BE%E7%A8%8B.md) 以及 [DengFOC_on_STM32](https://github.com/haotianh9/DengFOC_on_STM32) 编写的，程序框架主要基于 CubeMX 进行搭建（HAL 库），工程文件为`2.1. 程序\2.1.1. 嵌入式\电机控制板\PWM_LibFOC_速度控制\MDK-ARM`的`STM32G4_GPIO.uvprojx`文件。
 
-:::danger
 使用 CubeMX 更新工程前，必须保证用户自己编写的代码放置在/* USER CODE BEGIN xx */与/* USER CODE END xx */结构之间，否则会被删除。
-
-:::
 
 该部分程序控制架构为 FOC，电流控制策略为“直轴电流为零”，控制算法为 PID，PWM 控制技术为“正弦脉宽调制”。位置控制相关代码与速度控制类似，可直接参照本节内容。
 
