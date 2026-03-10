@@ -398,11 +398,11 @@ Special attention should be paid to the actual delay time of the delay function 
 #### Initialization Function
 When powering on, the AD2S1210 has certain timing requirements for each pin:
 
-<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements" height="300"> </p>
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements" height="200"> </p>
 
-Among them, $ \text{t}_\text{RST} $ is at least $ 10\mu $ seconds, and the length of $ \text{t}_\text{TRACK} $ is related to the resolution:
+Among them, $\text{t}_\text{RST}$ is at least $ 10\mu $ seconds, and the length of $\text{t}_\text{TRACK}$ is related to the resolution:
 
-<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution" height="300"> </p>
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution" height="100"> </p>
 
 Based on this, we wrote the initialization function of AD2S1210:
 
@@ -604,12 +604,12 @@ Signal timing for reading data in configuration mode:
 
 Signal timing for reading data in normal mode:
 
-<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="Signal timing for reading data in normal mode" height="300"> </p>
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="Signal timing for reading data in normal mode" height="400"> </p>
 
 ### Speed Two's Complement Conversion
 The speed value solved by the resolver decoder AD2S1210 is stored in speed registers 0x82 and 0x83 in the form of a 16-bit binary two's complement. According to the agreement for reading position and speed in AD2S1210's normal mode, the `unsigned char buf[4]` returned by the function `ReadFromAD2S1210(VELOCITY, POS_VEL, buf)` contains a 24-bit wide shift register value. Among them, `buf[2]` to `buf[1]` contain the 16-bit binary two's complement representing speed in MSB-first order (MSB is in `buf[2]`), and `buf[0]` contains data from the fault register. The meaning of each bit of the fault register is shown in the following table:
 
-<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="Fault register bit meanings" height="50"> </p>
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="Fault register bit meanings" height="200"> </p>
 
 In this case, the resolution of AD2S1210 is set to 12 bits. At this time, in the 16-bit speed data composed of `buf[2]` and `buf[1]`, only bits 15 to 4 provide valid data, while bits 3 to 0 should be ignored. Therefore, to represent the speed using a 12-bit number, it is necessary to first shift `buf[2]` left by 8 bits, add it to `buf[1]`, and then shift the entire result right by 4 bits:
 
