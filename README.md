@@ -7,7 +7,7 @@ Before updating the project using CubeMX, ensure that the code written by the us
 
 The control architecture of this part of the program is FOC, the current control strategy is "direct-axis current zero", the control algorithm is PID, and the PWM control technology is "sinusoidal pulse width modulation". The code related to position control is similar to speed control and can directly refer to the content of this section.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/webp/33745167/1742302430811-43780d8d-265c-4535-8e01-2173e5e24d32.webp" alt="Classification of common concepts in the field of motor control">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/webp/33745167/1742302430811-43780d8d-265c-4535-8e01-2173e5e24d32.webp" alt="Classification of common concepts in the field of motor control" height="500"> </p>
 
 ### Microcontroller Configuration
 Starting from the main function `main()` at line 143 of the `main.c` file, the microcontroller is first configured. This part can be learned with reference to [欧拉电子 STM32G4 Simulink FOC开发实战](https://space.bilibili.com/458115745/lists/1688763?type=season). The relevant source code is as follows.
@@ -87,11 +87,11 @@ HAL_COMP_Start(&hcomp1);
 #### ADC and DAC
 The ADC-related configuration files can be found in lines 156 to 157 of the `main.c` file, `MX_ADC1_Init()` and `MX_ADC2_Init()`. In this program, ADC1 regular group channel 11 is used to collect the bus voltage, with a single-ended sampling range of [0, 3.3 V], a sampling period of 2.5 clock cycles, a clock division of 4, a sampling resolution of 12 bits, right-aligned data, and sampling triggered by software. In the designed control board, the bus voltage of the frameless torque motor is divided by resistors with values of 75 kΩ and 3 kΩ, and the voltage from the 3 kΩ resistor is input to the ADC interface of the microcontroller. Therefore, the conversion relationship between the actual bus voltage and the ADC sampling value is:
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289033349-8646c99e-4007-47fb-a5ad-1e380877cab4.png" alt="Conversion formula of bus voltage and ADC sampling value">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289033349-8646c99e-4007-47fb-a5ad-1e380877cab4.png" alt="Conversion formula of bus voltage and ADC sampling value" height="50"> </p>
 
 ADC1 injected group channels 3 and 12, and ADC2 injected group channel 3 are used to collect three-phase currents. Since the maximum current allowed by the motor selected for this joint is 61 A, the control board uses a sampling resistor with a nominal resistance of 1 mΩ and a maximum operating current of 77 A to sample the phase voltage of the motor winding at the low end. The sampled phase voltage is biased and amplified by the internal operational amplifier (OPAMP) of the microcontroller, and finally input to the ADC interface. The gain of the microcontroller's OPAMP is configured through external resistors, and the gain value of this circuit is configured to 22/3. The ADC interface of the microcontroller is cascaded with the output end of the OPAMP, and the sampled signal amplified by the OPAMP is converted by the injected group of the ADC. The priority of the injected group is higher than that of the regular group, with a single-ended sampling range of [0, 3.3 V], a sampling period of 2.5 clock cycles, and the sampling trigger signal comes from the advanced timer TIM1. To ensure that the input voltage of the ADC is within the single-ended sampling voltage range, the control board uses a voltage divider resistor outside the OPAMP interface of the microcontroller to positively bias the ADC input voltage by 1.65 V. After biasing, considering the 22/3 OPAMP gain and the voltage division of the 1 mΩ low-end sampling resistor, the relationship between the ADC port input voltage, the ADC sampling value, and the phase current can be obtained as:
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289223431-c9d8b2ac-5ed2-4201-8a40-5c32713ef959.png" alt="Conversion formula of phase current, ADC input voltage and ADC sampling value">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742289223431-c9d8b2ac-5ed2-4201-8a40-5c32713ef959.png" alt="Conversion formula of phase current, ADC input voltage and ADC sampling value" height="150"> </p>
 
 In lines 210 to 213 of the `main.c` file, we set the DAC comparison and wave blocking to prevent phase current overcurrent. If the ADC current sampling value exceeds the input `Data` of the `HAL_DAC_SetValue` function, the advanced timer PWM wave transmission will stop.
 
@@ -102,15 +102,22 @@ Channels 1 to 3 of TIM1 work in complementary PWM output mode, PWM mode 1, and c
 
 To prevent simultaneous conduction of the upper and lower bridge arms of the full-bridge module, the dead time of TIM1 is set to 1.5 microseconds, and the corresponding value of the `DTG` register is 0x78.
 
-$ \begin{align}
-\text{DT}&=\text{DTG}[7:0]*t_{dtg}\\
-&=120*\frac{1}{160\text{M}}*2(\text{Note: CKD frequency division coefficient）}\\
-&=1500ns\\
-\end{align} $
+$$
+\begin{aligned}
+\mathrm{DT} &= \mathrm{DTG}[7:0] \cdot t_{\mathrm{dtg}} \\
+            &= 120 \times \frac{1}{160\,\mathrm{MHz}} \times 2 
+            \quad (\text{CKD frequency division coefficient}) \\
+            &= 1500\,\mathrm{ns}
+\end{aligned}
+$$
 
-It can be known from line 195 of the `main.c` file that the value of the auto-reload register `ARR` is 7999. Thus, the frequency $ f_{\text{PWM}} $ of the PWM wave generated by TIM1 is:
+It can be known from line 195 of the `main.c` file that the value of the auto-reload register `ARR` is 7999. Thus, the frequency $f_{\text{PWM}}$ of the PWM wave generated by TIM1 is:
 
-$ f_{\text{PWM}} =160\text{MHz}/(7999+1)/2=10\text{kHz} $. Among them, the frequency is divided by 2 due to the center-aligned mode.
+$$
+f_{\mathrm{PWM}} = \frac{160\,\mathrm{MHz}}{(7999+1)\times 2} = 10\,\mathrm{kHz}
+$$
+
+Among them, the frequency is divided by 2 due to the center-aligned mode.
 
 TIM1 channel 4, configured in no-output mode, is mainly used to generate TRGO signals to trigger three-phase current sampling of the ADC peripheral, and its PWM mode is 2. To ensure the stability of the sampling value, the lower bridge arms of the three-phase full-bridge inverter circuit must all be turned on at the sampling trigger moment. For this reason, in the center-aligned mode, the value of the register `CCR4` should be close to the overflow value 7999. Due to the delay in ADC sampling and conversion, its value is set to 7998 in line 196 of the `main.c` file.
 
@@ -212,8 +219,8 @@ This is to control the execution cycle of related programs. For example, if `ste
 #### Low-Pass Filtering
 In motor control, the speed data measured by sensors often has large fluctuations (caused by differentiating position data to solve speed). To ensure the stable operation of the motor, it is often necessary to perform [low-pass filtering](https://www.zhihu.com/question/518024588/answer/3364056229) on the speed data. Low-pass filtering in discrete space can be regarded as weighted summation of the data collected at the current moment and the data collected at the previous moment to smooth the data.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893237-142a47e9-c4ad-4f06-9b17-b14deebce00f.png" alt="Speed data before low-pass filtering">
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893193-813a6be1-2f27-480c-8acc-be5374d5afd4.png" alt="Speed data after low-pass filtering">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893237-142a47e9-c4ad-4f06-9b17-b14deebce00f.png" alt="Speed data before low-pass filtering" height="300"> </p>
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742301893193-813a6be1-2f27-480c-8acc-be5374d5afd4.png" alt="Speed data after low-pass filtering" height="300"> </p>
 
 #### Inverse Transformation
 The `setPhaseVoltage` function converts the q-axis voltage into three-phase voltages, and its program is:
@@ -248,7 +255,7 @@ In this part of the program, we limit the size of the Uq output by the controlle
 ## Current Control
 The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环`. The MATLAB motor control library used is based on the svpwm subsystem in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.2. Simulink仿真及程序生成\IF`, and is generated using Embedded Coder (relevant tutorials can refer to Chapter 13 of the *STM32G4 Simulink FOC Development Kit User Manual* and the corresponding [video](https://www.bilibili.com/video/BV12C4y1f78j/?spm_id_from=333.1387.collection.video_card.click&vd_source=ad856f51618186902c24682a8c8279ff)). The program framework is mainly built using CubeMX (HAL library), and the project file is `STM32G4_GPIO.uvprojx` in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\电机控制板\SVPWM_MATLAB_电流环\MDK-ARM`.
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742361984092-4a7872d5-4eb9-4c5f-b7d4-07fe5801d450.png" alt="svpwm subsystem">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742361984092-4a7872d5-4eb9-4c5f-b7d4-07fe5801d450.png" alt="svpwm subsystem" height="300"> </p>
 
 The control architecture of this part of the program is FOC, the current control strategy is "direct-axis current zero", the control algorithm is PID, and the PWM control technology is "Space Vector Pulse Width Modulation (SVPWM)".
 
@@ -363,7 +370,7 @@ else
 
 ```
 
-<img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742364165223-214e3aa5-4096-4c45-a1d8-e24986f16801.png" alt="Global macro definition">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2025/png/33745167/1742364165223-214e3aa5-4096-4c45-a1d8-e24986f16801.png" alt="Global macro definition" height="300"> </p>
 
 After converting the Simulink subsystem into executable embedded programs using Embedded Coder, the inputs of the subsystem are defined in the `rtU` structure, the outputs are defined in the `rtY` structure, and the main program is executed through the `xxx_step()` function.
 
@@ -391,11 +398,11 @@ Special attention should be paid to the actual delay time of the delay function 
 #### Initialization Function
 When powering on, the AD2S1210 has certain timing requirements for each pin:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements" height="300"> </p>
 
 Among them, $ \text{t}_\text{RST} $ is at least $ 10\mu $ seconds, and the length of $ \text{t}_\text{TRACK} $ is related to the resolution:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution" height="300"> </p>
 
 Based on this, we wrote the initialization function of AD2S1210:
 
@@ -497,7 +504,7 @@ void WriteToAD2S1210(unsigned char address, unsigned char data)
 
 The corresponding signal timing is as follows:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513847865-b88101a4-3073-42c1-abbe-9eb9b28bea7f.png" alt="Write function signal timing">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513847865-b88101a4-3073-42c1-abbe-9eb9b28bea7f.png" alt="Write function signal timing" height="300"> </p>
 
 #### Read Function
 Both position registers and speed registers of AD2S1210 can be read in normal mode or configuration mode, while reading other registers can only be done in configuration mode. To read data in configuration mode, we need to send the address of the target register to the SPI interface. Before reading data in the position register or speed register, it is necessary to first pull up and then pull down the `SAMPLE#` pin to update the data.
@@ -593,16 +600,16 @@ void ReadFromAD2S1210(unsigned char mode, unsigned char address, unsigned char *
 
 Signal timing for reading data in configuration mode:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513904592-947b64f0-4943-41fe-b162-1eb0af381ca2.png" alt="Signal timing for reading data in configuration mode">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513904592-947b64f0-4943-41fe-b162-1eb0af381ca2.png" alt="Signal timing for reading data in configuration mode" height="300"> </p>
 
 Signal timing for reading data in normal mode:
 
-<img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="Signal timing for reading data in normal mode">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689513935030-c74473d3-f812-48ee-abff-5139ec75a307.png" alt="Signal timing for reading data in normal mode" height="300"> </p>
 
 ### Speed Two's Complement Conversion
 The speed value solved by the resolver decoder AD2S1210 is stored in speed registers 0x82 and 0x83 in the form of a 16-bit binary two's complement. According to the agreement for reading position and speed in AD2S1210's normal mode, the `unsigned char buf[4]` returned by the function `ReadFromAD2S1210(VELOCITY, POS_VEL, buf)` contains a 24-bit wide shift register value. Among them, `buf[2]` to `buf[1]` contain the 16-bit binary two's complement representing speed in MSB-first order (MSB is in `buf[2]`), and `buf[0]` contains data from the fault register. The meaning of each bit of the fault register is shown in the following table:
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="Fault register bit meanings">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713863886694-7a409be6-73cd-4f21-87e2-2079eaa05b05.png" alt="Fault register bit meanings" height="50"> </p>
 
 In this case, the resolution of AD2S1210 is set to 12 bits. At this time, in the 16-bit speed data composed of `buf[2]` and `buf[1]`, only bits 15 to 4 provide valid data, while bits 3 to 0 should be ignored. Therefore, to represent the speed using a 12-bit number, it is necessary to first shift `buf[2]` left by 8 bits, add it to `buf[1]`, and then shift the entire result right by 4 bits:
 
@@ -634,7 +641,7 @@ if ((velocity0 & 0x800)>>11)
 
 Among them, `velocity = velocity*1000/2048` is to calculate the absolute value of the actual speed represented in decimal. The full-scale range refers to the following table:
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713856888221-6b64efc9-1228-4d7e-991c-06a709070db1.png" alt="AD2S1210 full-scale range">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1713856888221-6b64efc9-1228-4d7e-991c-06a709070db1.png" alt="AD2S1210 full-scale range" height="200"> </p>
 
 Correspondingly, if the two's complement is positive, the original code is the two's complement itself, and the following program is executed:
 
@@ -653,7 +660,7 @@ In addition, binary numbers in computers are stored in two's complement form. Fo
 ## CAN Bus Configuration
 This project uses CAN-FD, which supports transmitting 64 bytes of data in one frame. However, due to the limitation that the CAN transceiver chip TJA1050 used does not support this function, it can still only transmit 8 bytes of data.
 
-<img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1714484801478-24be0570-1941-41c2-8f93-ae863cfd617f.png" alt="CAN bus data transmission">
+<p align="center"> <img src="https://cdn.nlark.com/yuque/0/2024/png/33745167/1714484801478-24be0570-1941-41c2-8f93-ae863cfd617f.png" alt="CAN bus data transmission" height="200"> </p>
 
 Here, we use the CAN bus to send the motor's position and speed information to the motor control board. Both data types are 32-bit floating-point numbers, which exactly occupy 8 bytes.
 
@@ -721,11 +728,11 @@ void MX_FDCAN1_Init(void)
 
 The formula for calculating the baud rate is:
 
-$ \text{Baud rate}=\frac{\text{Clock frequency}/\text{presc}}{\text{ntsjw}+\text{ntsg1}+\text{ntsg2}} $
+$\text{Baud rate}=\frac{\text{Clock frequency}/\text{presc}}{\text{ntsjw}+\text{ntsg1}+\text{ntsg2}}$
 
 After calculation, the two match:
 
-$ \frac{\text{170M}/\text{17}}{\text{8}+\text{2}+\text{7}}=\frac{\text{160M}/\text{16}}{\text{8}+\text{7}+\text{2}} $
+$\frac{\text{170M}/\text{17}}{\text{8}+\text{2}+\text{7}}=\frac{\text{160M}/\text{16}}{\text{8}+\text{7}+\text{2}}$
 
 ### Resolver Decoding Board Transmission Program
 ```cpp
