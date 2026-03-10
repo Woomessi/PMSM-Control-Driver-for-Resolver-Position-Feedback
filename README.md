@@ -395,7 +395,7 @@ When powering on, the AD2S1210 has certain timing requirements for each pin:
 
 <p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689497865455-b4570e85-0b02-4c26-8e35-173553fa57be.png" alt="AD2S1210 power-on timing requirements" height="200"> </p>
 
-Among them, $t_{\mathrm{RST}}$ is at least $10\,\mu\mathrm{s}$, and the length of $t_{\mathrm{TRACK}}$ is related to the resolution:
+Among them, $t_{\mathrm{RST}}$ is at least $10\ \mu\mathrm{s}$, and the length of $t_{\mathrm{TRACK}}$ is related to the resolution:
 
 <p align="center"> <img src="https://cdn.nlark.com/yuque/0/2023/png/33745167/1689498333563-6c62b475-b1f6-4ad0-b4a4-6045971973aa.png" alt="Relationship between t_TRACK and resolution" height="100"> </p>
 
