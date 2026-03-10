@@ -612,9 +612,9 @@ In this case, the resolution of AD2S1210 is set to 12 bits. At this time, in the
 velocity0 = ((buf[2] << 8) | buf[1])>>4;
 ```
 
-Next, we need to convert the binary two's complement to the original code. The binary two's complement should be understood according to the following case: assuming the resolution of AD2S1210 is 12 bits, the modulus is $ 2^{12}=4096\text{D} $, and the range of signed original codes that can be represented by the two's complement is $ [-2048\text{D},2047\text{D}] $. When we need to calculate the two's complement corresponding to the original code -170D, we can calculate it according to the following formula:
+Next, we need to convert the binary two's complement to the original code. The binary two's complement should be understood according to the following case: assuming the resolution of AD2S1210 is 12 bits, the modulus is $2^{12}=4096\text{D}$, and the range of signed original codes that can be represented by the two's complement is $[-2048\text{D},2047\text{D}]$. When we need to calculate the two's complement corresponding to the original code -170D, we can calculate it according to the following formula:
 
-$ \text{Negative two's complement}=\text{Modulus - Absolute value of negative original code}=4096\text{D}-170\text{D}=3926\text{D}=\text{0xF}56 $. At this time, the sign bit should be included in the conversion between binary and decimal.
+$\text{Negative two's complement}=\text{Modulus - Absolute value of negative original code}=4096\text{D}-170\text{D}=3926\text{D}=\text{0xF}56$. At this time, the sign bit should be included in the conversion between binary and decimal.
 
 Conversely, $ \text{Absolute value of negative original code}=\text{Modulus - Negative two's complement} $:
 
