@@ -374,12 +374,9 @@ else
 
 After converting the Simulink subsystem into executable embedded programs using Embedded Coder, the inputs of the subsystem are defined in the `rtU` structure, the outputs are defined in the `rtY` structure, and the main program is executed through the `xxx_step()` function.
 
-:::danger
-It should be noted that if using the self-developed motor control board v2.1 instead of the motor control board provided by Euler Electronics, in addition to configuring GPIO and peripherals, it is necessary to replace `STM32G431xx` with `STM32G474xx` in the global macro definition of Keil, and at the same time, modify the conversion gain from the difference between the ADC sampling value and the offset to the phase current to 0.10986328125f.
-
-In embedded programs, adding `f` after floating-point numbers [can improve calculation efficiency](http://www.openedv.com/thread-40175-1-1.html).
-
-:::
+> [!CAUTION]
+> It should be noted that if using the self-developed motor control board v2.1 instead of the motor control board provided by Euler Electronics, in addition to configuring GPIO and peripherals, it is necessary to replace `STM32G431xx` with `STM32G474xx` in the global macro definition of Keil, and at the same time, modify the conversion gain from the difference between the ADC sampling value and the offset to the phase current to 0.10986328125f.
+> In embedded programs, adding `f` after floating-point numbers [can improve calculation efficiency](http://www.openedv.com/thread-40175-1-1.html).
 
 # Resolver Decoding Board
 The source code for this part is located in `2.1. 程序\2.1.1. 嵌入式\旋变解码板`. The program framework is mainly built based on the engineering template of 正点原子 (Zhengdian Atom) (HAL library), and the project file is `atk_g474.uvprojx` in `交接材料_吴宏瑞\2. 工程文件\2.1. 程序\2.1.1. 嵌入式\旋变解码板\Board_2.2_CAN_tune\Projects\MDK-ARM`.
@@ -390,10 +387,8 @@ The resolver decoding board is mainly based on the [AD2S1210](https://www.analog
 This part of the program mainly realizes reading and writing between STM32 and AD2S1210 based on software SPI, and can refer to the Software Resources -> AD2S1210 Reference Code section in [Link](https://www.analog.com/cn/products/ad2s1210.html#software-resources).
 
 ### Common Functions
-:::danger
-Special attention should be paid to the actual delay time of the delay function `delay` in the driver program. On the one hand, it will affect the timing of the driver; on the other hand, it will affect the execution efficiency of the program.
-
-:::
+> [!CAUTION]
+> Special attention should be paid to the actual delay time of the delay function `delay` in the driver program. On the one hand, it will affect the timing of the driver; on the other hand, it will affect the execution efficiency of the program.
 
 #### Initialization Function
 When powering on, the AD2S1210 has certain timing requirements for each pin:
